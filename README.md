@@ -6,6 +6,8 @@ The website supports match-winner picks, weekly seeding rankings, bracket-team q
 
 Use Manage to add team names, add players to those teams, create a matchup between two different teams, choose its stage, week, and future start time, then enter the verified winner after the start. A Discord bot is not required.
 
+On a brand-new database, the empty competition loads normally so the owner can see Manage and add the first team. Saving competition settings or adding a team initializes the active competition record.
+
 Owner access uses the trusted Sites authenticated-user headers and an explicit OWNER_ACCOUNT_EMAIL server-side allowlist. It is not granted to every signed-in visitor. OWNER_ACCOUNT_EMAIL is configured privately in Sites. The hosting access remains owner-only. The owner can also try predictions with their existing Site identity. Other participants retain Discord sign-in; their Discord application connection is still needed. Owner and Discord entries are separate identities.
 
 Picks save immediately to D1 and lock at the match start. Correct picks earn 100 points. Results can be corrected by the owner, recalculating points without double awards. No money, deposits, or payouts. Team names are unique without case sensitivity. Concurrent updates reject stale data rather than silently overwriting it.

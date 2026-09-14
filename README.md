@@ -48,7 +48,7 @@ Validation includes starting balance, stake limits, 2x and 3x settlement, losing
 
 ## Rosters and player betting restrictions
 
-The owner adds each player with a display name, team, and Discord user ID. Discord user IDs are stored only to match a signed-in account with its roster team; public API responses and the roster list omit them. Each Discord account can belong to only one team.
+The owner creates a team, opens that team's roster card, and adds players directly beneath it with a display name and Discord user ID. Discord user IDs are stored only to match a signed-in account with its roster team; public API responses and the roster list omit them. Each Discord account can belong to only one team.
 
 A rostered player cannot bet on any single match involving their team. They also cannot place a full-week ticket if their team appears in any match on that slate. The UI explains and disables these options, while every match-pick API enforces the same rule on the server. Players who are not assigned to either team can still bet normally.
 

@@ -4,7 +4,7 @@ The website supports match-winner picks, weekly seeding rankings, bracket-team q
 
 ## Owner workflow
 
-Use Manage teams & matches to add team names, create a matchup between two different teams, choose a future start time, and enter the verified winner after the start. No players, seeding, bracket configuration, or Discord bot are required.
+Use Manage to add team names, add players to those teams, create a matchup between two different teams, choose its stage, week, and future start time, then enter the verified winner after the start. A Discord bot is not required.
 
 Owner access uses the trusted Sites authenticated-user headers and an explicit OWNER_ACCOUNT_EMAIL server-side allowlist. It is not granted to every signed-in visitor. OWNER_ACCOUNT_EMAIL is configured privately in Sites. The hosting access remains owner-only. The owner can also try predictions with their existing Site identity. Other participants retain Discord sign-in; their Discord application connection is still needed. Owner and Discord entries are separate identities.
 
@@ -43,4 +43,10 @@ Every account starts with 100 virtual points. A single-match bet deducts its who
 These are play points with no cash value. They cannot be purchased, deposited, withdrawn, transferred, or redeemed. The UI labels this clearly.
 
 Validation includes starting balance, stake limits, 2x and 3x settlement, losing outcomes, single/week exclusivity, deadline locking, manual close behavior, TypeScript, production build, and anonymous/cross-origin management rejection.
+
+## Rosters and player betting restrictions
+
+The owner adds each player with a display name, team, and Discord user ID. Discord user IDs are stored only to match a signed-in account with its roster team; public API responses and the roster list omit them. Each Discord account can belong to only one team.
+
+A rostered player cannot bet on any single match involving their team. They also cannot place a full-week ticket if their team appears in any match on that slate. The UI explains and disables these options, while every match-pick API enforces the same rule on the server. Players who are not assigned to either team can still bet normally.
 

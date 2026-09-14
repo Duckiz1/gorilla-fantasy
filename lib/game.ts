@@ -1,5 +1,5 @@
 export type Team = { id: string; name: string; short: string; color: string };
-export type Player = { id: string; name: string; team: string; points: number };
+export type Player = { id: string; name: string; team: string; points: number; discordId?: string };
 export type Match = {id:string;a:string;b:string;lock:string;winner?:string;week?:string;stage?:'seeding'|'bracket';betsOpen?:boolean};
 export type Tournament = { id: string; name: string; example: boolean; phase: 'seeding'|'bracket'|'complete'; currentWeek?:string; seedLock: string; bracketLock: string; fantasyLock: string; teams: Team[]; players: Player[]; qualified: string[]; results: Record<string,string>; matches: Match[] };
 export type SingleBet={winner:string;stake:number;placedAt:string};

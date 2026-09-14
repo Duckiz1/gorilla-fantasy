@@ -34,3 +34,13 @@ Scores: 25 per exact weekly seed position, 25 per correct qualifier, 50 per brac
 
 Verification: TypeScript and production build, seven new prediction rule tests, and anonymous management rejections. Real Discord sign-in remains dependent on the Discord application configuration. Browser interaction testing was not requested for this update.
 
+## Stage-aware virtual point betting
+
+The owner selects the current Seeding or Bracket stage and the current week in Manage. Match Picks shows only matches assigned to that exact stage and week. New matches inherit the currently saved stage and week. The owner can manually open or close betting on each future match; started and completed matches cannot reopen.
+
+Every account starts with 100 virtual points. A single-match bet deducts its whole-number stake immediately and returns 2x the stake when correct. A full-week bet covers every match in the visible stage/week, deducts one stake, and returns 3x only when every pick is correct. A player cannot combine singles and a full-week ticket for the same slate. Bets are immutable after placement. Adding later matches does not alter an already placed full-week ticket, whose match IDs are captured at placement.
+
+These are play points with no cash value. They cannot be purchased, deposited, withdrawn, transferred, or redeemed. The UI labels this clearly.
+
+Validation includes starting balance, stake limits, 2x and 3x settlement, losing outcomes, single/week exclusivity, deadline locking, manual close behavior, TypeScript, production build, and anonymous/cross-origin management rejection.
+

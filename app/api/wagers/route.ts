@@ -1,0 +1,19 @@
+import {z} from 'zod';
+import {db,user,siteOwner,originOK} from '@/lib/server';
+import {emptyPicks,type Picks,type Tournament} from '@/lib/game';
+import {normalizePicks,normalizeTournament,placeSingle,placeWeek,wallet} from '@/lib/bets';
+const action=z.discriminatedUnion('action',[
+ z.object({action:z.literal('settings'),phase:z.enum(['seeding','bracket']),week:z.string().trim().min(1).max(40)}),
+ z.object({action:z.literal('betState'),id:z.string(),open:z.boolean()}),
+ z.object({action:z.literal('single'),id:z.string(),winner:z.string(),stake:z.number().int().min(1)}),
+ z.object({action:z.literal('week'),week:z.string(),stage:z.enum(['seeding','bracket']),picks:z.record(z.string(),z.string()),stake:z.number().int().min(1)})
+]);
+async function current(){const row=await db().prepare('SELECT data FROM tournaments WHERE id = ?').bind('active').first<{data:string}>();if(!row)throw Error('Add teams and matches in the owner area first.');return {raw:row.data,t:normalizeTournament(JSON.parse(row.data) as Tournament)};}
+export async function GET(r:Request){try{const owner=siteOwner(r);const u=await user(r)||owner;const {t}=await current();const row=u?await db().prepare('SELECT data FROM entries WHERE user = ? AND tournament = ?').bind(u.id,t.id).first<{data:string}>():null;const p=normalizePicks(row?JSON.parse(row.data):emptyPicks());return Response.json({teams:t.teams,matches:t.matches,phase:t.phase==='bracket'?'bracket':'seeding',currentWeek:t.currentWeek||'Week 1',bets:{single:p.singleBets,weekly:p.weekBets},points:wallet(p,t),user:u,owner:!!owner},{headers:{'Cache-Control':'no-store'}});}catch(e){return Response.json({error:e instanceof Error?e.message:'Could not load betting.'},{status:503});}}
+export async function POST(r:Request){try{if(!originOK(r))return Response.json({error:'Forbidden'},{status:403});const owner=siteOwner(r);const u=await user(r)||owner;if(!u)return Response.json({error:'Sign in to bet points.'},{status:401});const rawBody=await r.text();if(rawBody.length>12000)throw Error('Request too large.');const a=action.parse(JSON.parse(rawBody));const {t,raw}=await current();
+ if(a.action==='single'||a.action==='week'){const row=await db().prepare('SELECT data FROM entries WHERE user = ? AND tournament = ?').bind(u.id,t.id).first<{data:string}>();const old=normalizePicks(row?JSON.parse(row.data):emptyPicks());const next=a.action==='single'?placeSingle(old,t,a.id,a.winner,a.stake):placeWeek(old,t,a.week,a.stage,a.picks,a.stake);const result=row?await db().prepare('UPDATE entries SET data = ? WHERE user = ? AND tournament = ? AND data = ? AND EXISTS (SELECT 1 FROM tournaments WHERE id = ? AND data = ?)').bind(JSON.stringify(next),u.id,t.id,row.data,'active',raw).run():await db().prepare('INSERT INTO entries (user,tournament,data) SELECT ?,?,? WHERE EXISTS (SELECT 1 FROM tournaments WHERE id = ? AND data = ?) ON CONFLICT(user,tournament) DO NOTHING').bind(u.id,t.id,JSON.stringify(next),'active',raw).run();if(!result.meta.changes)throw Error('The match or your balance changed. Refresh and try again.');return Response.json({saved:true});}
+ if(!owner)return Response.json({error:'Only the owner can change the stage or betting status.'},{status:403});
+ if(a.action==='settings'){t.phase=a.phase;t.currentWeek=a.week;}
+ if(a.action==='betState'){const m=t.matches.find(x=>x.id===a.id);if(!m)throw Error('Match not found.');if(a.open&&(m.winner||Date.now()>=Date.parse(m.lock)))throw Error('A started or completed match cannot reopen.');m.betsOpen=a.open;}
+ const changed=await db().prepare('UPDATE tournaments SET data = ? WHERE id = ? AND data = ?').bind(JSON.stringify(t),'active',raw).run();if(!changed.meta.changes)throw Error('The schedule changed. Refresh and try again.');return Response.json({saved:true});
+ }catch(e){return Response.json({error:e instanceof z.ZodError?'Check your selections and point amount.':e instanceof Error?e.message:'Could not save.'},{status:400});}}

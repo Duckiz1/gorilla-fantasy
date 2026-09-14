@@ -42,6 +42,8 @@ The owner selects the current Seeding or Bracket stage and the current week in M
 
 Every account starts with 100 virtual points. A single-match bet deducts its whole-number stake immediately and returns 2x the stake when correct. A full-week bet covers every match in the visible stage/week, deducts one stake, and returns 3x only when every pick is correct. A player cannot combine singles and a full-week ticket for the same slate. Bets are immutable after placement. Adding later matches does not alter an already placed full-week ticket, whose match IDs are captured at placement.
 
+New wager entries verify the active competition row before inserting. The database row is stored under the active alias while player entries retain the competition's stable ID; these identifiers must remain distinct in the insert binding.
+
 These are play points with no cash value. They cannot be purchased, deposited, withdrawn, transferred, or redeemed. The UI labels this clearly.
 
 Validation includes starting balance, stake limits, 2x and 3x settlement, losing outcomes, single/week exclusivity, deadline locking, manual close behavior, TypeScript, production build, and anonymous/cross-origin management rejection.

@@ -1,6 +1,5 @@
-import { env } from 'cloudflare:workers';
-export function config(key:string):string {return String((env as unknown as Record<string,unknown>)[key]||process.env[key]||'');}
-export function db():D1Database {const binding=(env as unknown as {DB?:D1Database}).DB;if(!binding)throw Error('Database is not connected yet.');return binding;}
+import {config,db} from '@/lib/runtime';
+export {config,db};
 export const cookie=(r:Request,name:string)=>r.headers.get('cookie')?.split('; ').find(x=>x.startsWith(name+'='))?.slice(name.length+1)||'';
 export async function sign(value:string){const secret=config('SESSION_SECRET');if(secret.length<32)throw Error('Sign-in is not configured yet.');const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);return btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(value)))));}
 export async function user(r:Request):Promise<{id:string;name:string}|null>{try{const raw=decodeURIComponent(cookie(r,'gf_session'));const [value,sig]=raw.split('~');if(!value||!sig||await sign(value)!==sig)return null;const p=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(value),c=>c.charCodeAt(0))));return p.exp>Date.now()&&/^\d+$/.test(p.id)?p:null;}catch{return null;}}

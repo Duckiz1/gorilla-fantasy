@@ -1,0 +1,5 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "node node_modules/next/dist/bin/next build --webpack",
+  "outputDirectory": ".next"
+}

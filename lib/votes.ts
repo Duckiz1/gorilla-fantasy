@@ -1,0 +1,2 @@
+import type {Picks,Match} from './game';
+export function matchVotes(matches:Match[],entries:Picks[]){const counts:Record<string,{a:number;b:number}>={};for(const m of matches){const c={a:0,b:0};for(const p of entries){const pick=p.singleBets?.[m.id]?.winner||Object.values(p.weekBets||{}).find(b=>b.picks[m.id])?.picks[m.id];if(pick===m.a)c.a++;else if(pick===m.b)c.b++;}counts[m.id]=c;}return counts;}

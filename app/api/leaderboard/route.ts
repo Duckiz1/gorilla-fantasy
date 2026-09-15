@@ -1,10 +1,10 @@
-import { db } from '@/lib/server';
+import { db, siteOwner } from '@/lib/server';
 import { emptyPicks, type Picks, type Tournament } from '@/lib/game';
 import { normalizePicks, normalizeTournament, wallet } from '@/lib/bets';
 
 type StoredRow = { user: string; data: string };
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const active = await db().prepare('SELECT data FROM tournaments WHERE id = ?').bind('active').first<{ data: string }>();
     if (!active) return Response.json({ players: [] }, { headers: { 'Cache-Control': 'no-store' } });
@@ -19,7 +19,10 @@ export async function GET() {
       return [row.user, profile.name?.trim() || `Player ${row.user.slice(-4)}`];
     }));
     const picks = new Map(entries.results.map(row => [row.user, normalizePicks(JSON.parse(row.data) as Picks)]));
-    const ids = new Set([...names.keys(), ...picks.keys()]);
+    const removed=await db().prepare('SELECT user FROM entries WHERE tournament = ?').bind('leaderboard:hidden').all<{user:string}>();
+    const hidden=new Set(removed.results.map(row=>row.user));
+    const owner=!!await siteOwner(request);
+    const ids = new Set([...names.keys(), ...picks.keys()].filter(id=>!hidden.has(id)));
     const ranked = [...ids].map(id => ({
       id,
       name: names.get(id) || `Player ${id.slice(-4)}`,
@@ -32,7 +35,7 @@ export async function GET() {
       players: ranked.map((player, index) => {
         if (player.points !== previousPoints) previousRank = index + 1;
         previousPoints = player.points;
-        return { name: player.name, points: player.points, rank: previousRank };
+        return { ...(owner?{id:player.id}:{}), name: player.name, points: player.points, rank: previousRank };
       }),
     }, { headers: { 'Cache-Control': 'no-store' } });
   } catch {

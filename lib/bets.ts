@@ -1,5 +1,6 @@
 import type {Match,Picks,Tournament} from './game';
 export const STARTING_POINTS=100;
+export function cancelSingle(p:Picks,t:Tournament,id:string,now=Date.now()){const m=t.matches.find(m=>m.id===id);if(!m||!canBet(m,now))throw Error('You can only cancel before the match starts while betting is open.');if(!p.singleBets?.[id])throw Error('There is no bet to cancel.');const n=normalizePicks(p);n.singleBets={...n.singleBets};delete n.singleBets[id];return n;}
 export function normalizeTournament(t:Tournament):Tournament{return {...t,players:t.players||[],currentWeek:t.currentWeek||'Week 1',matches:t.matches.map(m=>({...m,week:m.week||t.currentWeek||'Week 1',stage:m.stage||(t.phase==='bracket'?'bracket':'seeding'),betsOpen:m.betsOpen??true}))};}
 export function normalizePicks(p:Picks):Picks{return {...emptyShape(),...p,singleBets:p.singleBets||{},weekBets:p.weekBets||{}};}
 function emptyShape():Picks{return {fantasy:[],seeding:[],bracket:{},matches:{},singleBets:{},weekBets:{}};}

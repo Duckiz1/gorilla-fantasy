@@ -23,9 +23,9 @@ export async function POST(r:Request){
   }else if(a.action==='removeUser'){
    const existing=await db().prepare('SELECT user FROM entries WHERE user = ? LIMIT 1').bind(a.id).first();
    if(!existing)throw Error('Leaderboard user not found. Refresh and try again.');
-   await db().prepare("INSERT INTO entries (user,tournament,data) VALUES (?,'leaderboard:hidden','{}') ON CONFLICT(user,tournament) DO NOTHING").bind(a.id).run();
+   await db().batch([db().prepare("INSERT INTO entries (user,tournament,data) VALUES (?,'leaderboard:hidden','{}') ON CONFLICT(user,tournament) DO NOTHING").bind(a.id),db().prepare("UPDATE entries SET data = json_set(data, '$.singleBets', json('{}'), '$.weekBets', json('{}'), '$.resetId', ?) WHERE user = ? AND tournament = (SELECT json_extract(data, '$.id') FROM tournaments WHERE id = 'active')").bind(crypto.randomUUID(),a.id)]);
   }else{
-   await db().prepare("INSERT INTO entries (user,tournament,data) SELECT DISTINCT user,'leaderboard:hidden','{}' FROM entries WHERE tournament <> 'leaderboard:hidden' ON CONFLICT(user,tournament) DO NOTHING").run();
+   await db().batch([db().prepare("INSERT INTO entries (user,tournament,data) SELECT DISTINCT user,'leaderboard:hidden','{}' FROM entries WHERE tournament <> 'leaderboard:hidden' ON CONFLICT(user,tournament) DO NOTHING"),db().prepare("UPDATE entries SET data = json_set(data, '$.singleBets', json('{}'), '$.weekBets', json('{}'), '$.resetId', ?) WHERE tournament = (SELECT json_extract(data, '$.id') FROM tournaments WHERE id = 'active')").bind(crypto.randomUUID())]);
   }
   return Response.json({saved:true});
  }catch(e){return Response.json({error:e instanceof Error?e.message:'Could not update records.'},{status:400});}

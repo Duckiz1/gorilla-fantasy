@@ -12,7 +12,7 @@ Create a Turso **libSQL** database and connect its credentials as server-only Ve
 - `OWNER_DISCORD_ID` = `690922143864848405`
 - `SITE_URL` = the final HTTPS Vercel production address
 
-Run `node --env-file=.env.local scripts/setup-vercel-db.mjs` with the database credentials in the ignored `.env.local` file. This creates tables without deleting existing data.
+The application creates missing tables automatically on its first database request. The setup script remains available for manual initialization.
 
 The current Sites database is separate. Existing teams, schedules, entries, and points must be exported and imported before switching users to the new site. Do not treat a successful empty deployment as a completed migration. Keep the existing site available until the data transfer and login checks pass.
 

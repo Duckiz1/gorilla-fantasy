@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 import {ArrowUpRight,Crosshair,GitBranch,LockKeyhole,Settings,ChevronRight,Trophy} from 'lucide-react';
 const modes=[
- {id:'matches' as const,number:'01',title:'Match picks',tag:'CALL THE WINNER',description:'Back your team. Pick a single match or take on the entire week.',detail:'2× single wins · 3× perfect weeks',Icon:Crosshair},
+ {id:'matches' as const,number:'01',title:'Match picks',tag:'CALL THE WINNER',description:'Pick the winner and choose how many points to bet.',detail:'Quick stakes · 2× wins',Icon:Crosshair},
  {id:'predictions' as const,number:'02',title:'Tournament predictions',tag:'SEE THE WHOLE PICTURE',description:'Predict who makes the bracket, then map the road to the final.',detail:'Qualifiers → Bracket → Champion',Icon:GitBranch},
  {id:'leaderboard' as const,number:'03',title:'Leaderboard',tag:'CHASE THE TOP SPOT',description:'Compare points with every player and see where you rank.',detail:'Live points · Global rankings',Icon:Trophy}
 ];

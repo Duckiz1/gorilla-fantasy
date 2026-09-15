@@ -3,10 +3,10 @@ import {useEffect,useState} from 'react';
 import {ArrowUpRight,Crosshair,GitBranch,LockKeyhole,Settings,ChevronRight,Trophy} from 'lucide-react';
 const modes=[
  {id:'matches' as const,number:'01',title:'Match picks',tag:'CALL THE WINNER',description:'Back your team. Pick a single match or take on the entire week.',detail:'2× single wins · 3× perfect weeks',Icon:Crosshair},
- {id:'predictions' as const,number:'02',title:'Seeding & bracket',tag:'SEE THE WHOLE PICTURE',description:'Pick weekly match winners, predict who qualifies, and map the road to the final.',detail:'Weekly matches → Qualifiers → Champion',Icon:GitBranch},
+ {id:'predictions' as const,number:'02',title:'Tournament predictions',tag:'SEE THE WHOLE PICTURE',description:'Predict who makes the bracket, then map the road to the final.',detail:'Qualifiers → Bracket → Champion',Icon:GitBranch},
  {id:'leaderboard' as const,number:'03',title:'Leaderboard',tag:'CHASE THE TOP SPOT',description:'Compare points with every player and see where you rank.',detail:'Live points · Global rankings',Icon:Trophy}
 ];
-export function DiscordGate(){return <section className="discord-gate"><LockKeyhole size={34}/><h2>Your picks start with Discord.</h2><p>Sign in to access match picks, weekly seeding, and bracket predictions.</p><a className="discord-button" href="/api/auth/login">Sign in with Discord <ArrowUpRight size={18}/></a></section>}
+export function DiscordGate(){return <section className="discord-gate"><LockKeyhole size={34}/><h2>Your picks start with Discord.</h2><p>Sign in to access match picks, bracket qualifiers, and bracket predictions.</p><a className="discord-button" href="/api/auth/login">Sign in with Discord <ArrowUpRight size={18}/></a></section>}
 export default function HomeMenu({signedIn,owner,onChoose}:{signedIn:boolean;owner:boolean;onChoose:(view:'home'|'matches'|'predictions'|'leaderboard'|'manage')=>void}){
  const [active,setActive]=useState(0);
  const [authMessage,setAuthMessage]=useState('');

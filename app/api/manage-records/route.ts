@@ -4,7 +4,7 @@ import type {Tournament} from '@/lib/game';
 const actions=z.discriminatedUnion('action',[
  z.object({action:z.literal('deleteMatch'),id:z.string().min(1)}),
  z.object({action:z.literal('clearMatches')}),
- z.object({action:z.literal('removeUser'),id:z.string().regex(/^\d+$/)}),
+ z.object({action:z.literal('removeUser'),id:z.string().min(1).max(200)}),
  z.object({action:z.literal('clearLeaderboard')})
 ]);
 export async function POST(r:Request){
@@ -21,6 +21,8 @@ export async function POST(r:Request){
    const result=await db().prepare('UPDATE tournaments SET data = ? WHERE id = ? AND data = ?').bind(JSON.stringify(t),'active',row.data).run();
    if(!result.meta.changes)return Response.json({error:'Schedule changed. Reload and try again.'},{status:409});
   }else if(a.action==='removeUser'){
+   const existing=await db().prepare('SELECT user FROM entries WHERE user = ? LIMIT 1').bind(a.id).first();
+   if(!existing)throw Error('Leaderboard user not found. Refresh and try again.');
    await db().prepare("INSERT INTO entries (user,tournament,data) VALUES (?,'leaderboard:hidden','{}') ON CONFLICT(user,tournament) DO NOTHING").bind(a.id).run();
   }else{
    await db().prepare("INSERT INTO entries (user,tournament,data) SELECT DISTINCT user,'leaderboard:hidden','{}' FROM entries WHERE tournament <> 'leaderboard:hidden' ON CONFLICT(user,tournament) DO NOTHING").run();
